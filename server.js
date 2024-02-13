@@ -3,18 +3,34 @@ import cors from "cors";
 import infoRouter from './routes/info.js'
 import loginRouter from './routes/login.js'
 import cookieParser from "cookie-parser";
-const ensureToken = (req,res,next) =>{
-    console.log(req.signedCookies)
+import jwt from 'jsonwebtoken'
+const authenticateToken = (req,res,next) =>{
+    const {cookie} = req.headers
+    let token = cookie && cookie.split('=')[1]
+    console.log(token)
+    if(token == null) return res.sendStatus(401)
+    jwt.verify(token, 'my_secret_key', (err, user)=>{
+    // if no access
+    if(err) return res.sendStatus(403)
+    //access
+    req.user = user
     next()
+    })
+    
 }
 const app = express()
 
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:8080',
+    credentials: true
+  }));
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.static('/views'))
-app.use('/api',ensureToken,infoRouter)
+app.use('/api',authenticateToken,infoRouter)
 app.use('/register', loginRouter)
+
 
 
  

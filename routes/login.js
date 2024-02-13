@@ -6,7 +6,7 @@ router.post('/', (req,res)=>{
     // console.log(req.body.email);
     const user = {email:req.body.email};
     const token = jwt.sign({user}, 'my_secret_key',{expiresIn: '1hr'});
-    res.cookie('jwt',token,{httpOnly:true});
+    res.cookie('jwt',token,{ httpOnly:false});
     res.send({
         message:`Hello ${req.body.email}, You have logged in, Yay!`
     })
